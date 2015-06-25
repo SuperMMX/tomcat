@@ -2560,7 +2560,13 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
 
         entry = new ResourceEntry();
         entry.source = resource.getURL();
-        entry.codeBase = resource.getCodeBase();
+        // is a class and is a real file
+        if (isClassResource && resource.getURL().equals(resource.getCodeBase())) {
+            WebResource classes = resources.getResource("/WEB-INF/classes");
+            entry.codeBase = classes.getURL();
+        } else {
+            entry.codeBase = resource.getCodeBase();
+        }
         entry.lastModified = resource.getLastModified();
 
         if (needConvert && path.endsWith(".properties")) {
