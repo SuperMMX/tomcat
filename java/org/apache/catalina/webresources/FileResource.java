@@ -210,7 +210,36 @@ public class FileResource extends AbstractResource {
 
     @Override
     public URL getCodeBase() {
-        return getURL();
+        // normal resource
+        if (!name.endsWith(".class")) {
+            return getURL();
+        }
+
+        // class file
+        URL url = null;
+
+        // /WEB-INF/classes/
+        String baseString = File.separator + "WEB-INF" + File.separator + "classes" + File.separator;
+
+        String path = resource.getPath();
+
+        // find the starting directory
+        int index = path.toLowerCase().indexOf(baseString.toLowerCase());
+        if (index >= 0) {
+            String base = path.substring(0, index + baseString.length());
+
+            try {
+                url = new File(base).toURI().toURL();
+            } catch (MalformedURLException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug(sm.getString("fileResource.getCodeBaseFail",
+                                           resource.getPath()), e);
+                }
+                url = null;
+            }
+        }
+
+        return url;
     }
 
     @Override
